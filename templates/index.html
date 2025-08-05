@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상훈로또예측기</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 800px;
+            width: 90%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .predict-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .predict-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255,107,107,0.3);
+        }
+
+        .predict-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results {
+            margin-top: 30px;
+        }
+
+        .last-numbers {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .last-numbers h3 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+
+        .prediction-card {
+            background: #fff;
+            border: 2px solid #e9ecef;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .prediction-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .model-name {
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .numbers {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .number {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .loading {
+            display: none;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #ffc107;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .number {
+                width: 40px;
+                height: 40px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎱 상훈로또예측기</h1>
+        <p class="subtitle">AI 머신러닝으로 로또 번호를 예측합니다</p>
+        
+        <button class="predict-btn" onclick="predictNumbers()">
+            🔮 번호 예측하기
+        </button>
+        
+        <div class="loading" id="loading">
+            ⏳ AI가 번호를 분석중입니다...
+        </div>
+        
+        <div class="results" id="results" style="display: none;">
+            <div class="last-numbers">
+                <h3>📊 가장 최근 회차 번호</h3>
+                <div class="numbers" id="lastNumbers"></div>
+            </div>
+            
+            <div id="predictions"></div>
+        </div>
+        
+        <div class="warning">
+            ⚠️ 본 예측은 통계적 모델에 기반한 것으로, 당첨을 보장하지 않습니다.
+        </div>
+    </div>
+
+    <script>
+        async function predictNumbers() {
+            const btn = document.querySelector('.predict-btn');
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            
+            btn.disabled = true;
+            btn.textContent = '분석중...';
+            loading.style.display = 'block';
+            results.style.display = 'none';
+            
+            try {
+                const response = await fetch('/predict');
+                const data = await response.json();
+                
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                
+                // 최근 회차 번호 표시
+                const lastNumbersDiv = document.getElementById('lastNumbers');
+                lastNumbersDiv.innerHTML = '';
+                data.last_numbers.forEach(num => {
+                    const numberDiv = document.createElement('div');
+                    numberDiv.className = 'number';
+                    numberDiv.textContent = num;
+                    lastNumbersDiv.appendChild(numberDiv);
+                });
+                
+                // 예측 결과 표시
+                const predictionsDiv = document.getElementById('predictions');
+                predictionsDiv.innerHTML = '';
+                
+                const modelNames = {
+                    'LSTM': '🧠 LSTM (딥러닝)',
+                    '랜덤 포레스트': '🌳 랜덤 포레스트',
+                    '로지스틱 회귀': '📈 로지스틱 회귀'
+                };
+                
+                Object.entries(data.predictions).forEach(([model, numbers]) => {
+                    const card = document.createElement('div');
+                    card.className = 'prediction-card';
+                    
+                    const modelName = document.createElement('div');
+                    modelName.className = 'model-name';
+                    modelName.textContent = modelNames[model] || model;
+                    
+                    const numbersDiv = document.createElement('div');
+                    numbersDiv.className = 'numbers';
+                    
+                    numbers.forEach(num => {
+                        const numberDiv = document.createElement('div');
+                        numberDiv.className = 'number';
+                        numberDiv.textContent = num;
+                        numbersDiv.appendChild(numberDiv);
+                    });
+                    
+                    card.appendChild(modelName);
+                    card.appendChild(numbersDiv);
+                    predictionsDiv.appendChild(card);
+                });
+                
+                results.style.display = 'block';
+                
+            } catch (error) {
+                alert('예측 중 오류가 발생했습니다: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🔮 번호 예측하기';
+                loading.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
