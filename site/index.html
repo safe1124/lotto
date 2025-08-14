@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>상훈로또예측기 — 종합 추천 번호</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --accent:#ffb84d;
+      --muted:#9aa4b2;
+      --white:#ffffff;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; background:linear-gradient(180deg,#071026 0%, #081426 60%); color:var(--white); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px}
+    .container{width:100%;max-width:760px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:16px; padding:20px; box-shadow:0 10px 30px rgba(2,6,23,0.6)}
+    .header{display:flex;align-items:center;gap:12px}
+    .logo{width:64px;height:64px;flex:none}
+    .title{display:flex;flex-direction:column}
+    .app-name{font-weight:800;font-size:18px;letter-spacing:0.4px}
+    .highlight{background:linear-gradient(90deg,var(--accent),#ff7ab6); -webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800}
+    .badge{margin-top:6px;padding:6px 10px;background:rgba(255,255,255,0.03);color:var(--muted);border-radius:999px;font-size:13px;display:inline-block}
+
+    .hero{margin-top:18px;text-align:center}
+    .big-title{font-size:26px;font-weight:800}
+    .sub{color:var(--muted);margin-top:6px;font-size:14px}
+
+    .composite{margin-top:18px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:18px;border-radius:12px;display:flex;flex-direction:column;align-items:center}
+    .numbers{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+    .num{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;background:rgba(255,255,255,0.04);border:2px solid rgba(255,255,255,0.04)}
+    .num.primary{background:linear-gradient(180deg,var(--accent),#ff7ab6);color:#071026;border:none;box-shadow:0 6px 18px rgba(255,122,150,0.12)}
+
+    .models{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px}
+    .card{background:var(--card);padding:12px;border-radius:10px}
+    .card h4{font-size:15px;margin-bottom:8px}
+    .small-numbers{display:flex;gap:8px;flex-wrap:wrap}
+    .small-num{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.03);font-weight:600}
+
+    .footer{margin-top:16px;text-align:center;color:var(--muted);font-size:13px}
+    .cta{margin-top:12px;display:flex;gap:10px;justify-content:center}
+    .btn{background:var(--accent);border:none;color:#071026;padding:10px 16px;border-radius:10px;font-weight:700}
+
+    /* Emphasis area */
+    .emphasis{margin-left:auto;background:linear-gradient(90deg,#2affc6,#4dd2ff);color:#062022;padding:8px 12px;border-radius:999px;font-weight:800}
+
+    @media (min-width:600px){
+      .models{grid-template-columns:repeat(3,1fr)}
+      .num{width:72px;height:72px;font-size:20px}
+    }
+    @media (max-width:420px){
+      .num{width:54px;height:54px;font-size:16px}
+      .num.primary{width:60px;height:60px}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img class="logo" src="/assets/logo.svg" alt="로고">
+      <div class="title">
+        <div class="app-name">상훈로또예측기 <span class="highlight">(종합 추천)</span></div>
+        <div class="badge">1183회차 <strong style="color:var(--white)">5등 당첨!</strong></div>
+      </div>
+      <div style="margin-left:auto" class="emphasis">3개 적중 — 축하합니다 🎉</div>
+    </div>
+
+    <div class="hero">
+      <div class="big-title">종합 추천 번호</div>
+      <div class="sub">아래 번호는 앙상블 결과를 바탕으로 추천됩니다. (참고용)</div>
+    </div>
+
+    <div class="composite" id="composite">
+      <div style="font-size:14px;color:var(--muted);">최종 추천</div>
+      <div class="numbers" id="mainNumbers">
+        <!-- 숫자 칩들이 들어갑니다 -->
+      </div>
+    </div>
+
+    <div class="models">
+      <div class="card">
+        <h4>LSTM 우선</h4>
+        <div class="small-numbers" id="lstmNums"></div>
+      </div>
+      <div class="card">
+        <h4>랜덤포레스트 우선</h4>
+        <div class="small-numbers" id="rfNums"></div>
+      </div>
+      <div class="card">
+        <h4>회귀분석 우선</h4>
+        <div class="small-numbers" id="regNums"></div>
+      </div>
+    </div>
+
+    <div class="footer">
+      데이터는 학습 모델 기반이며 당첨을 보장하지 않습니다. 프로젝트는 Netlify 배포 준비가 완료되었습니다.
+      <div class="cta"><button class="btn" id="refresh">새로고침</button></div>
+    </div>
+  </div>
+
+<script>
+  async function loadPredictions(){
+    try{
+      const res = await fetch('/.netlify/functions/predict');
+      const json = await res.json();
+      const composite = json.composite || [];
+      const lstm = json.lstm || [];
+      const rf = json.rf || [];
+      const reg = json.reg || [];
+
+      const main = document.getElementById('mainNumbers');
+      main.innerHTML = '';
+      composite.forEach((n,i)=>{
+        const el = document.createElement('div');
+        el.className = 'num' + (i===0? ' primary':'');
+        el.textContent = n;
+        main.appendChild(el);
+      });
+
+      function fill(listId, nums){
+        const el = document.getElementById(listId);
+        el.innerHTML = '';
+        nums.forEach(n=>{
+          const d = document.createElement('div');
+          d.className='small-num';
+          d.textContent = n;
+          el.appendChild(d);
+        });
+      }
+      fill('lstmNums', lstm);
+      fill('rfNums', rf);
+      fill('regNums', reg);
+
+    }catch(e){
+      console.error(e);
+    }
+  }
+
+  document.getElementById('refresh').addEventListener('click', ()=> loadPredictions());
+  loadPredictions();
+</script>
+</body>
+</html>

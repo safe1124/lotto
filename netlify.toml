@@ -1,19 +1,6 @@
 [build]
+  publish = "site"
   functions = "netlify/functions"
-  publish = "."
 
-[functions]
-  python_runtime = "python3.9"
-
-[build.environment]
-  PYTHON_VERSION = "3.9"
-
-[[redirects]]
-  from = "/predict"
-  to = "/.netlify/functions/predict"
-  status = 200
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+[dev]
+  functions = "netlify/functions"
