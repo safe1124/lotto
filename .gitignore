@@ -27,31 +27,24 @@ venv/
 ENV/
 env/
 
-# IDE
+# IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
 
 # OS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
 # Logs
 *.log
 
-# TensorFlow
+# Temporary files
+*.tmp
+*.temp
+
+# Model files (if large)
 *.h5
-*.keras
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# Environment variables
-.env
+*.pkl
+*.joblib
