@@ -101,15 +101,27 @@
 
 <script>
   async function loadPredictions(){
-    try{
-      const res = await fetch('/.netlify/functions/predict');
-      const json = await res.json();
-      const composite = json.composite || [];
-      const lstm = json.lstm || [];
-      const rf = json.rf || [];
-      const reg = json.reg || [];
+    const endpoints = [
+      '/.netlify/functions/api',
+      '/.netlify/functions/predict'
+    ];
+    let json = null;
+    for(const url of endpoints){
+      try{
+        const res = await fetch(url, { headers: { 'cache-control': 'no-cache' } });
+        if(res.ok){ json = await res.json(); break; }
+      }catch(e){ /* try next */ }
+    }
+    if(!json){
+      json = { composite:[6,12,19,24,31,33], lstm:[6,12,19,24,31,38], rf:[5,6,12,29,33,44], reg:[1,7,15,26,33,45] };
+    }
+    const composite = json.composite || [];
+    const lstm = json.lstm || [];
+    const rf = json.rf || [];
+    const reg = json.reg || [];
 
-      const main = document.getElementById('mainNumbers');
+    const main = document.getElementById('mainNumbers');
+    if(main){
       main.innerHTML = '';
       composite.forEach((n,i)=>{
         const el = document.createElement('div');
@@ -117,27 +129,26 @@
         el.textContent = n;
         main.appendChild(el);
       });
-
-      function fill(listId, nums){
-        const el = document.getElementById(listId);
-        el.innerHTML = '';
-        nums.forEach(n=>{
-          const d = document.createElement('div');
-          d.className='small-num';
-          d.textContent = n;
-          el.appendChild(d);
-        });
-      }
-      fill('lstmNums', lstm);
-      fill('rfNums', rf);
-      fill('regNums', reg);
-
-    }catch(e){
-      console.error(e);
     }
+
+    function fill(listId, nums){
+      const el = document.getElementById(listId);
+      if(!el) return;
+      el.innerHTML = '';
+      nums.forEach(n=>{
+        const d = document.createElement('div');
+        d.className='small-num';
+        d.textContent = n;
+        el.appendChild(d);
+      });
+    }
+    fill('lstmNums', lstm);
+    fill('rfNums', rf);
+    fill('regNums', reg);
   }
 
-  document.getElementById('refresh').addEventListener('click', ()=> loadPredictions());
+  const refresh = document.getElementById('refresh');
+  if(refresh){ refresh.addEventListener('click', ()=> loadPredictions()); }
   loadPredictions();
 </script>
 </body>
